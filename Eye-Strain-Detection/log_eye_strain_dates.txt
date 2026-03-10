@@ -1,0 +1,6 @@
+﻿2020-09-08 4e1c317 CSS changes
+2020-09-07 207a875 Deployment issue trial and updated readme
+2020-08-24 f3dfa0c Deployment issues
+2020-08-24 9f1aab0 Changed requirements file
+2020-08-24 a57a134 Changed requirements file
+2020-08-24 7a49488 Initial commit
