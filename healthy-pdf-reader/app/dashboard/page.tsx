@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, BookOpen, Clock, Activity, Zap, ChevronRight, Play, Star, FileText, Trophy, Target, Check, Trash2, StopCircle, RotateCcw } from 'lucide-react';
+import { Upload, BookOpen, Clock, Activity, Zap, ChevronRight, Play, Star, FileText, Trophy, Target, Check, Trash2, StopCircle, RotateCcw, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
-import { collection, onSnapshot, addDoc, query, orderBy, where, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, query, orderBy, where, deleteDoc, doc, updateDoc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
-import { saveLocalFile } from '@/lib/db';
+import { saveLocalFile, deleteLocalFile } from '@/lib/db';
 
 // --- Variants ---
 const containerVariants = {
@@ -103,7 +103,7 @@ const BookUpload = ({ onUpload, progress }: { onUpload: (file: File) => void, pr
     );
 };
 
-const LibraryCard = ({ file, onClick }: { file: any, onClick: () => void }) => {
+const LibraryCard = ({ file, onClick, onDelete }: { file: any, onClick: () => void, onDelete: (e: React.MouseEvent) => void }) => {
     const isExpired = new Date(file.expiryTimestamp) < new Date();
     const daysLeft = Math.ceil((new Date(file.expiryTimestamp).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     const progress = Math.round((file.pagesRead / (file.totalPages || 1)) * 100);
@@ -148,9 +148,18 @@ const LibraryCard = ({ file, onClick }: { file: any, onClick: () => void }) => {
                 </div>
             </div>
 
-            {/* Action Button */}
-            <div className="p-3 rounded-full mr-2 bg-white/5 text-muted-foreground opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                <Play className="w-5 h-5 fill-current ml-0.5" />
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 mr-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                <button 
+                    onClick={onDelete}
+                    className="p-3 rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-colors"
+                    title="Delete File"
+                >
+                    <Trash2 className="w-5 h-5" />
+                </button>
+                <div className="p-3 rounded-full bg-white/5 text-muted-foreground group-hover:bg-primary group-hover:text-white transition-colors">
+                    <Play className="w-5 h-5 fill-current ml-0.5" />
+                </div>
             </div>
         </motion.div>
     );
@@ -183,11 +192,13 @@ const StatsCard = ({ icon: Icon, label, value, subValue, colorClass, action }: a
 
 export default function Dashboard() {
     const router = useRouter();
-    const { user, userProfile } = useAuth();
+    const { user, userProfile, logout } = useAuth();
     const [greeting, setGreeting] = useState('');
     const [stats, setStats] = useState<any>({ totalScreenTime: 0, totalPagesRead: 0, streak: 0 });
     const [files, setFiles] = useState<any[]>([]);
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+    const profileInputRef = useRef<HTMLInputElement>(null);
 
     // --- Effects ---
     useEffect(() => {
@@ -274,6 +285,46 @@ export default function Dashboard() {
         }
     };
 
+    const handleDeleteFile = async (file: any, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!user || !confirm(`Are you sure you want to delete "${file.fileName}"?`)) return;
+        
+        try {
+            await deleteDoc(doc(db, 'users', user.uid, 'files', file.id));
+            if (file.fileUrl.startsWith('local://')) {
+                const localId = file.fileUrl.replace('local://', '');
+                await deleteLocalFile(localId);
+            }
+        } catch (error) {
+            console.error("Error deleting file", error);
+            alert("Failed to delete file.");
+        }
+    };
+
+    const handleProfilePicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !user) return;
+
+        setIsUploadingProfile(true);
+        try {
+            const storageRef = ref(storage, `users/${user.uid}/profile_${Date.now()}`);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            
+            await setDoc(doc(db, 'users', user.uid, 'profile', 'info'), {
+                photoDataUrl: url,
+            }, { merge: true });
+            
+            // Allow a moment for the context to refresh
+            setTimeout(() => window.location.reload(), 1000);
+        } catch (error) {
+            console.error("Error uploading profile picture:", error);
+            alert("Failed to update profile picture");
+        } finally {
+            setIsUploadingProfile(false);
+        }
+    };
+
     const handleOpenFile = (file: any) => {
         router.push(`/read?url=${encodeURIComponent(file.fileUrl)}&fileId=${file.id}&filename=${encodeURIComponent(file.fileName)}`);
     };
@@ -308,11 +359,35 @@ export default function Dashboard() {
                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                             Online
                         </div>
-                        {photoUrl ? (
-                            <img src={photoUrl} alt={displayName} className="w-10 h-10 rounded-full border-2 border-white/10 p-0.5 object-cover shadow-lg" />
-                        ) : (
-                            <div className="w-10 h-10 rounded-full bg-secondary border border-white/10" />
-                        )}
+                        <div className="relative group cursor-pointer" onClick={() => profileInputRef.current?.click()} title="Change Profile Picture">
+                            {photoUrl ? (
+                                <img src={photoUrl} alt={displayName} className="w-10 h-10 rounded-full border-2 border-white/10 p-0.5 object-cover shadow-lg group-hover:opacity-75 transition-opacity" />
+                            ) : (
+                                <div className="w-10 h-10 rounded-full bg-secondary border border-white/10 flex items-center justify-center group-hover:bg-secondary/80 transition-colors">
+                                    <span className="text-sm font-semibold text-white/50">{displayName.charAt(0)}</span>
+                                </div>
+                            )}
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                ref={profileInputRef}
+                                onChange={handleProfilePicChange}
+                            />
+                            {isUploadingProfile && (
+                                <div className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center">
+                                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                </div>
+                            )}
+                        </div>
+
+                        <button 
+                            onClick={logout}
+                            className="p-2 ml-2 hover:bg-red-500/10 hover:text-red-400 rounded-lg text-muted-foreground transition-colors"
+                            title="Log Out"
+                        >
+                            <LogOut className="w-5 h-5" />
+                        </button>
                     </div>
                 </div>
             </nav>
@@ -416,6 +491,7 @@ export default function Dashboard() {
                                         key={file.id}
                                         file={file}
                                         onClick={() => handleOpenFile(file)}
+                                        onDelete={(e) => handleDeleteFile(file, e)}
                                     />
                                 ))}
                             </AnimatePresence>

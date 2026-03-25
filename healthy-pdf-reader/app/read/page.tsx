@@ -46,6 +46,7 @@ function ReaderContent() {
     const [blinkRate, setBlinkRate] = useState(0);
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+    const [fileError, setFileError] = useState<string | null>(null);
 
     // Header auto-hide timeout
     useEffect(() => {
@@ -67,30 +68,37 @@ function ReaderContent() {
 
     // --- Load Local File Effect ---
     useEffect(() => {
+        let objectUrl: string | null = null;
+        
         const loadFile = async () => {
             if (url && url.startsWith('local://')) {
                 const id = url.replace('local://', '');
                 try {
                     const blob = await getLocalFile(id);
                     if (blob) {
-                        const objectUrl = URL.createObjectURL(blob);
+                        objectUrl = URL.createObjectURL(blob);
                         setBlobUrl(objectUrl);
                     } else {
-                        console.error("Local file not found in IndexedDB");
-                        alert("File not found on this device. Please upload it again.");
+                        // Use warn instead of error to prevent Next.js dev overlay
+                        console.warn("Local file not found in IndexedDB");
+                        setFileError("File not found on this device. Please upload it again.");
                     }
                 } catch (err) {
-                    console.error("Error loading local file:", err);
+                    // Use warn instead of error to prevent Next.js dev overlay
+                    console.warn("Error loading local file:", err);
+                    setFileError("Error loading file. Please try again.");
                 }
             } else if (url) {
                 setBlobUrl(url); // Use remote URL directly
+            } else {
+                setFileError("No file URL provided.");
             }
         };
         loadFile();
 
         return () => {
-            if (blobUrl && blobUrl.startsWith('blob:')) {
-                URL.revokeObjectURL(blobUrl);
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
             }
         };
     }, [url]);
@@ -191,8 +199,22 @@ function ReaderContent() {
         }
     };
 
-    if (!blobUrl && !url) {
-        return <div className="h-screen flex items-center justify-center text-muted-foreground">Loading file...</div>;
+    if (fileError) {
+        return (
+            <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#090e1a] text-white space-y-6">
+                <div className="text-red-400 font-medium text-lg">{fileError}</div>
+                <button 
+                    onClick={() => router.push('/dashboard')}
+                    className="px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-all"
+                >
+                    Return to Dashboard
+                </button>
+            </div>
+        );
+    }
+
+    if (!blobUrl) {
+        return <div className="h-screen flex items-center justify-center bg-[#090e1a] text-muted-foreground">Loading file...</div>;
     }
 
     return (
