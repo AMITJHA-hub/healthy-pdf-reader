@@ -33,15 +33,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
 
     useEffect(() => {
-        // If API keys are missing, use a mock login session if previously set
-        if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock_key_for_build") {
-            if (typeof window !== "undefined" && localStorage.getItem('mockLoggedin')) {
-                setUser({ uid: 'mock-user-123', displayName: 'Guest Reader', email: 'guest@example.com' } as User);
-                setUserProfile({ name: 'Guest Reader', photoDataUrl: '' });
-            }
-            setLoading(false);
-            return;
-        }
 
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
@@ -66,16 +57,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     const signInWithGoogle = async () => {
-        // If API keys are mock/missing, simulate successful login
-        if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock_key_for_build") {
-            console.log("Mocking Google Login due to missing API keys");
-            if (typeof window !== "undefined") {
-                localStorage.setItem('mockLoggedin', 'true');
-            }
-            setUser({ uid: 'mock-user-123', displayName: 'Guest Reader', email: 'guest@example.com' } as User);
-            router.push('/dashboard');
-            return;
-        }
 
         const provider = new GoogleAuthProvider();
         try {
@@ -122,12 +103,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const logout = async () => {
         try {
-            if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock_key_for_build") {
-                if (typeof window !== "undefined") localStorage.removeItem('mockLoggedin');
-                setUser(null);
-                router.push('/login');
-                return;
-            }
             await signOut(auth);
             router.push('/login');
         } catch (error) {
