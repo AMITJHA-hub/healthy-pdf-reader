@@ -64,7 +64,7 @@ const BookUpload = ({ onUpload, progress }: { onUpload: (file: File) => void, pr
             <div className={`h-full border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center transition-all duration-300 overflow-hidden relative
                 ${isDragging
                     ? 'border-primary bg-primary/10 shadow-[0_0_30px_rgba(59,130,246,0.3)] scale-[1.02]'
-                    : 'border-white/10 bg-white/[0.02] hover:border-primary/50 hover:bg-white/[0.04]'
+                    : 'border-border bg-black/5 hover:border-primary/50 hover:bg-black/5'
                 }`}
             >
                 {progress > 0 && progress < 100 ? (
@@ -83,9 +83,9 @@ const BookUpload = ({ onUpload, progress }: { onUpload: (file: File) => void, pr
                         <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-accent/20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
                         <div className={`w-20 h-20 mb-6 rounded-2xl flex items-center justify-center shadow-2xl z-10 transition-all duration-300
-                            ${isDragging ? 'bg-primary text-white scale-110 rotate-12' : 'bg-gradient-to-br from-zinc-800 to-zinc-900 border border-white/10 group-hover:scale-110 group-hover:-rotate-3'}`}
+                            ${isDragging ? 'bg-primary text-foreground scale-110 rotate-12' : 'bg-gradient-to-br from-white to-slate-50 border border-border group-hover:scale-110 group-hover:-rotate-3'}`}
                         >
-                            <Upload className={`w-8 h-8 transition-colors ${isDragging ? 'text-white' : 'text-zinc-400 group-hover:text-primary'}`} />
+                            <Upload className={`w-8 h-8 transition-colors ${isDragging ? 'text-foreground' : 'text-muted-foreground group-hover:text-primary'}`} />
                         </div>
 
                         <div className="text-center z-10 space-y-2">
@@ -118,10 +118,10 @@ const LibraryCard = ({ file, onClick, onDelete }: { file: any, onClick: () => vo
             animate="show"
             whileHover={{ scale: 1.02, y: -2 }}
             onClick={onClick}
-            className="group relative flex flex-col sm:flex-row items-center gap-5 p-4 rounded-[1.5rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-primary/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] transition-all cursor-pointer overflow-hidden"
+            className="group relative flex flex-col sm:flex-row items-center gap-5 p-4 rounded-[1.5rem] bg-black/5 border border-border hover:bg-black/5 hover:border-primary/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] transition-all cursor-pointer overflow-hidden"
         >
             {/* Progress Bar Background */}
-            <div className="absolute bottom-0 left-0 h-[2px] w-full bg-white/5">
+            <div className="absolute bottom-0 left-0 h-[2px] w-full bg-black/5">
                 <motion.div
                     className="h-full bg-gradient-to-r from-primary to-accent"
                     initial={{ width: 0 }}
@@ -131,7 +131,7 @@ const LibraryCard = ({ file, onClick, onDelete }: { file: any, onClick: () => vo
             </div>
 
             {/* Thumbnail Icon */}
-            <div className="relative w-full sm:w-20 h-24 sm:h-20 rounded-2xl border border-white/5 flex items-center justify-center shrink-0 z-10 bg-gradient-to-br from-white/5 to-white/[0.01] group-hover:from-primary/20 group-hover:to-accent/20 transition-colors">
+            <div className="relative w-full sm:w-20 h-24 sm:h-20 rounded-2xl border border-border flex items-center justify-center shrink-0 z-10 bg-gradient-to-br from-white/5 to-white/[0.01] group-hover:from-primary/20 group-hover:to-accent/20 transition-colors">
                 <FileText className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
             </div>
 
@@ -142,7 +142,7 @@ const LibraryCard = ({ file, onClick, onDelete }: { file: any, onClick: () => vo
                     <span className="flex items-center gap-1.5 text-orange-400 bg-orange-400/10 px-2 py-0.5 rounded-full">
                         <Clock className="w-3 h-3" /> {daysLeft}d left
                     </span>
-                    <span className="flex items-center gap-1.5 bg-white/5 px-2 py-0.5 rounded-full">
+                    <span className="flex items-center gap-1.5 bg-black/5 px-2 py-0.5 rounded-full">
                         {progress}% Read
                     </span>
                 </div>
@@ -152,12 +152,12 @@ const LibraryCard = ({ file, onClick, onDelete }: { file: any, onClick: () => vo
             <div className="flex items-center gap-2 mr-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                 <button 
                     onClick={onDelete}
-                    className="p-3 rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-colors"
+                    className="p-3 rounded-full bg-black/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-colors"
                     title="Delete File"
                 >
                     <Trash2 className="w-5 h-5" />
                 </button>
-                <div className="p-3 rounded-full bg-white/5 text-muted-foreground group-hover:bg-primary group-hover:text-white transition-colors">
+                <div className="p-3 rounded-full bg-black/5 text-muted-foreground group-hover:bg-primary group-hover:text-foreground transition-colors">
                     <Play className="w-5 h-5 fill-current ml-0.5" />
                 </div>
             </div>
@@ -169,12 +169,12 @@ const StatsCard = ({ icon: Icon, label, value, subValue, colorClass, action }: a
     <motion.div
         variants={itemVariants}
         whileHover={{ scale: 1.02, y: -4 }}
-        className="relative overflow-hidden p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-white/10 hover:bg-white/[0.05] transition-all group"
+        className="relative overflow-hidden p-6 rounded-[2rem] bg-black/5 border border-border hover:border-border hover:bg-black/5 transition-all group"
     >
         <div className={`absolute top-0 right-0 p-32 bg-${colorClass}-500/5 blur-[80px] rounded-full -mr-16 -mt-16 pointer-events-none transition-opacity opacity-50 group-hover:opacity-100`} />
 
         <div className="relative z-10 flex justify-between items-start mb-6">
-            <div className={`p-3.5 rounded-2xl bg-white/5 text-${colorClass}-400 ring-1 ring-white/10 group-hover:scale-110 transition-transform`}>
+            <div className={`p-3.5 rounded-2xl bg-black/5 text-${colorClass}-400 ring-1 ring-border group-hover:scale-110 transition-transform`}>
                 <Icon className="w-6 h-6" />
             </div>
             {action}
@@ -346,25 +346,25 @@ export default function Dashboard() {
             <div className="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-accent/10 blur-[150px] rounded-full pointer-events-none z-0" />
 
             {/* Navbar */}
-            <nav className="fixed top-0 w-full z-50 px-6 py-4 border-b border-white/5 bg-background/50 backdrop-blur-xl">
+            <nav className="fixed top-0 w-full z-50 px-6 py-4 border-b border-border bg-background/50 backdrop-blur-xl">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-3 font-bold text-xl tracking-tight">
                         <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                            <Activity className="w-6 h-6 text-white" />
+                            <Activity className="w-6 h-6 text-foreground" />
                         </div>
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">OptiRead</span>
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">OptiRead</span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 text-xs font-medium text-muted-foreground">
+                        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/5 border border-border text-xs font-medium text-muted-foreground">
                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                             Online
                         </div>
                         <div className="relative group cursor-pointer" onClick={() => profileInputRef.current?.click()} title="Change Profile Picture">
                             {photoUrl ? (
-                                <img src={photoUrl} alt={displayName} className="w-10 h-10 rounded-full border-2 border-white/10 p-0.5 object-cover shadow-lg group-hover:opacity-75 transition-opacity" />
+                                <img src={photoUrl} alt={displayName} className="w-10 h-10 rounded-full border-2 border-border p-0.5 object-cover shadow-lg group-hover:opacity-75 transition-opacity" />
                             ) : (
-                                <div className="w-10 h-10 rounded-full bg-secondary border border-white/10 flex items-center justify-center group-hover:bg-secondary/80 transition-colors">
-                                    <span className="text-sm font-semibold text-white/50">{displayName.charAt(0)}</span>
+                                <div className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center group-hover:bg-secondary/80 transition-colors">
+                                    <span className="text-sm font-semibold text-muted-foreground">{displayName.charAt(0)}</span>
                                 </div>
                             )}
                             <input 
@@ -402,7 +402,7 @@ export default function Dashboard() {
                     className="flex flex-col md:flex-row justify-between items-end gap-8"
                 >
                     <div className="space-y-4 max-w-2xl">
-                        <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
+                        <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground leading-tight">
                             {greeting}, <br />
                             <span className="text-gradient">{displayName.split(' ')[0]}</span>.
                         </h1>
@@ -414,15 +414,15 @@ export default function Dashboard() {
 
                     <motion.div
                         whileHover={{ scale: 1.05 }}
-                        className="p-5 pr-8 rounded-[2rem] bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-xl flex items-center gap-4 shadow-2xl"
+                        className="p-5 pr-8 rounded-[2rem] bg-gradient-to-br from-white/5 to-white/[0.02] border border-border backdrop-blur-xl flex items-center gap-4 shadow-2xl"
                     >
-                        <div className="p-3 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl shadow-lg shadow-orange-500/20 text-white">
+                        <div className="p-3 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl shadow-lg shadow-orange-500/20 text-foreground">
                             <Trophy className="w-6 h-6" />
                         </div>
                         <div>
                             <div className="text-xs text-muted-foreground uppercase font-bold tracking-widest mb-0.5">Current Streak</div>
-                            <div className="text-3xl font-bold text-white flex items-baseline gap-1">
-                                {stats.streak || 0} <span className="text-base font-medium text-white/50">days</span>
+                            <div className="text-3xl font-bold text-foreground flex items-baseline gap-1">
+                                {stats.streak || 0} <span className="text-base font-medium text-muted-foreground">days</span>
                             </div>
                         </div>
                     </motion.div>
@@ -465,7 +465,7 @@ export default function Dashboard() {
 
                         {/* Upload Card */}
                         <div className="space-y-4">
-                            <h2 className="text-lg font-semibold flex items-center gap-2 text-white/80 px-2">
+                            <h2 className="text-lg font-semibold flex items-center gap-2 text-muted-foreground px-2">
                                 <Play className="w-4 h-4 text-primary" /> Quick Start
                             </h2>
                             <BookUpload onUpload={handleUpload} progress={uploadProgress} />
@@ -475,11 +475,11 @@ export default function Dashboard() {
                     {/* Right Column: Library (8 cols) */}
                     <div className="lg:col-span-8 space-y-6">
                         <div className="flex justify-between items-center px-2">
-                            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                            <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
                                 <span className="p-2 rounded-xl bg-primary/10 text-primary"><BookOpen className="w-5 h-5" /></span>
                                 Your Library
                             </h2>
-                            <div className="text-sm font-medium text-muted-foreground px-3 py-1 bg-white/5 rounded-full border border-white/5">
+                            <div className="text-sm font-medium text-muted-foreground px-3 py-1 bg-black/5 rounded-full border border-border">
                                 {files.length} Books
                             </div>
                         </div>
@@ -500,13 +500,13 @@ export default function Dashboard() {
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    className="h-64 flex flex-col items-center justify-center text-center p-8 rounded-[2rem] border-2 border-dashed border-white/5 bg-white/[0.01]"
+                                    className="h-64 flex flex-col items-center justify-center text-center p-8 rounded-[2rem] border-2 border-dashed border-border bg-black/5"
                                 >
-                                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                                        <BookOpen className="w-8 h-8 text-white/20" />
+                                    <div className="w-16 h-16 rounded-full bg-black/5 flex items-center justify-center mb-4">
+                                        <BookOpen className="w-8 h-8 text-muted-foreground" />
                                     </div>
-                                    <p className="text-lg font-medium text-white/60">Your library is empty</p>
-                                    <p className="text-sm text-white/30">Upload a PDF to get started</p>
+                                    <p className="text-lg font-medium text-muted-foreground">Your library is empty</p>
+                                    <p className="text-sm text-muted-foreground">Upload a PDF to get started</p>
                                 </motion.div>
                             )}
                         </div>

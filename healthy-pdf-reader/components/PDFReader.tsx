@@ -65,7 +65,7 @@ export default function PDFReader({ url, onPageChange, onTotalPages }: PDFReader
     <div className="flex flex-col h-full w-full items-center relative perspective-[2000px]">
 
       {/* Controls - Disabled during break */}
-      <div className={`sticky top-0 z-10 w-full bg-background/80 backdrop-blur-md border-b border-white/5 p-4 flex justify-between items-center shadow-sm transition-opacity duration-300 ${isInBreak ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`sticky top-0 z-10 w-full bg-background/80 backdrop-blur-md border-b border-border p-4 flex justify-between items-center shadow-sm transition-opacity duration-300 ${isInBreak ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <div className="flex items-center gap-4">
           <button
             onClick={() => setPageNumber(p => Math.max(1, p - 1))}
@@ -126,7 +126,7 @@ export default function PDFReader({ url, onPageChange, onTotalPages }: PDFReader
                   scale={scale}
                   renderTextLayer={false}
                   renderAnnotationLayer={false}
-                  className="rounded-lg overflow-hidden border border-white/5 bg-white shadow-lg"
+                  className="rounded-lg overflow-hidden border border-border bg-white shadow-lg"
                 />
               </Document>
             </motion.div>

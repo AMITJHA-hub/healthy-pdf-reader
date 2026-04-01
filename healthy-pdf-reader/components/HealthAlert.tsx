@@ -71,10 +71,10 @@ export default function HealthAlert({ type, onDismiss }: HealthAlertProps) {
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-full max-w-md bg-card border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                        className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
                     >
-                        <div className={`p-6 text-white flex flex-col items-center justify-center text-center gap-4 ${ALERT_CONFIG[type].color}`}>
-                            <div className="p-4 bg-white/20 rounded-full backdrop-blur-md">
+                        <div className={`p-6 text-foreground flex flex-col items-center justify-center text-center gap-4 ${ALERT_CONFIG[type].color}`}>
+                            <div className="p-4 bg-black/5 rounded-full backdrop-blur-md">
                                 {ALERT_CONFIG[type].icon}
                             </div>
                             <h2 className="text-2xl font-bold">{ALERT_CONFIG[type].title}</h2>
@@ -95,7 +95,7 @@ export default function HealthAlert({ type, onDismiss }: HealthAlertProps) {
 
                         <button
                             onClick={onDismiss}
-                            className="absolute top-4 right-4 p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                            className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground hover:bg-black/5 rounded-full transition-colors"
                         >
                             <X className="w-5 h-5" />
                         </button>

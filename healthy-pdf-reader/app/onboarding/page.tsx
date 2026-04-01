@@ -85,17 +85,17 @@ export default function Onboarding() {
     }
   };
 
-  if (!user) return <div className="min-h-screen flex items-center justify-center bg-[#0B0F19] text-white"><Loader2 className="animate-spin w-8 h-8" /></div>;
+  if (!user) return <div className="min-h-screen flex items-center justify-center bg-background text-foreground"><Loader2 className="animate-spin w-8 h-8" /></div>;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0B0F19] p-6 text-white">
-      <div className="w-full max-w-2xl grid md:grid-cols-[1.1fr_0.9fr] gap-6 bg-white/[0.03] border border-white/5 rounded-2xl p-8 shadow-xl backdrop-blur-sm">
+    <div className="min-h-screen flex items-center justify-center bg-background p-6 text-foreground">
+      <div className="w-full max-w-2xl grid md:grid-cols-[1.1fr_0.9fr] gap-6 bg-black/5 border border-border rounded-2xl p-8 shadow-xl backdrop-blur-sm">
         <div className="space-y-2">
           <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mb-4">
             <UserRound className="w-6 h-6 text-blue-400" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Complete your profile</h1>
-          <p className="text-zinc-400 text-sm">
+          <p className="text-muted-foreground text-sm">
             We use this info to personalize break reminders and posture guidance.
           </p>
         </div>
@@ -104,20 +104,20 @@ export default function Onboarding() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-300" htmlFor="name">Full name</label>
+                <label className="text-sm font-medium text-muted-foreground" htmlFor="name">Full name</label>
                 <input
                   id="name"
                   type="text"
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full h-11 px-4 rounded-lg bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 outline-none text-sm text-white placeholder:text-zinc-600"
+                  className="w-full h-11 px-4 rounded-lg bg-black/5 border border-border focus:ring-2 focus:ring-blue-500 outline-none text-sm text-foreground placeholder:text-muted-foreground"
                   placeholder="Alex Doe"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-300" htmlFor="age">Age</label>
+                <label className="text-sm font-medium text-muted-foreground" htmlFor="age">Age</label>
                 <input
                   id="age"
                   type="number"
@@ -126,16 +126,16 @@ export default function Onboarding() {
                   required
                   value={form.age}
                   onChange={(e) => setForm({ ...form, age: e.target.value })}
-                  className="w-full h-11 px-4 rounded-lg bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 outline-none text-sm text-white placeholder:text-zinc-600"
+                  className="w-full h-11 px-4 rounded-lg bg-black/5 border border-border focus:ring-2 focus:ring-blue-500 outline-none text-sm text-foreground placeholder:text-muted-foreground"
                   placeholder="24"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300" htmlFor="photo">Profile photo</label>
+              <label className="text-sm font-medium text-muted-foreground" htmlFor="photo">Profile photo</label>
               <div className="space-y-3">
-                <div className="relative rounded-xl border border-white/10 bg-black/60 overflow-hidden min-h-[200px] flex items-center justify-center">
+                <div className="relative rounded-xl border border-border bg-black/60 overflow-hidden min-h-[200px] flex items-center justify-center">
                   {form.photoDataUrl && !isCameraActive ? (
                     <img src={form.photoDataUrl} alt="Captured profile" className="w-full h-full object-cover" />
                   ) : isCameraActive ? (
@@ -148,7 +148,7 @@ export default function Onboarding() {
                       onUserMediaError={(e: any) => setCameraError(e?.message || 'Camera permission denied')}
                     />
                   ) : (
-                    <div className="text-sm text-zinc-500 flex flex-col items-center gap-2 p-6">
+                    <div className="text-sm text-muted-foreground flex flex-col items-center gap-2 p-6">
                       <Camera className="w-6 h-6" />
                       <span>Used for posture calibration only.</span>
                     </div>
@@ -160,7 +160,7 @@ export default function Onboarding() {
                     <button
                       type="button"
                       onClick={() => { setIsCameraActive(true); setCameraError(''); }}
-                      className="h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-colors flex items-center gap-2"
+                      className="h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-foreground text-xs font-semibold transition-colors flex items-center gap-2"
                     >
                       <Camera className="w-3 h-3" />
                       {form.photoDataUrl ? 'Retake' : 'Start camera'}
@@ -171,7 +171,7 @@ export default function Onboarding() {
                     <button
                       type="button"
                       onClick={handleCapture}
-                      className="h-9 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors flex items-center gap-2"
+                      className="h-9 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-foreground text-xs font-semibold transition-colors flex items-center gap-2"
                     >
                       <Camera className="w-3 h-3" />
                       Capture
@@ -182,7 +182,7 @@ export default function Onboarding() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-black/5 border border-border">
               <input
                 id="glasses"
                 type="checkbox"
@@ -190,7 +190,7 @@ export default function Onboarding() {
                 onChange={(e) => setForm({ ...form, wearsGlasses: e.target.checked })}
                 className="w-4 h-4 rounded border-gray-600 bg-transparent text-blue-500 focus:ring-blue-500"
               />
-              <label htmlFor="glasses" className="text-sm font-medium text-zinc-300">I wear spectacles or contact lenses</label>
+              <label htmlFor="glasses" className="text-sm font-medium text-muted-foreground">I wear spectacles or contact lenses</label>
             </div>
 
             {error && <p className="text-sm text-red-400">{error}</p>}
@@ -198,7 +198,7 @@ export default function Onboarding() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-60"
+              className="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 text-foreground font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : <>Complete Setup <ArrowRight className="w-4 h-4" /></>}
             </button>

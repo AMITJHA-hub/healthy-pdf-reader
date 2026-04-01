@@ -37,7 +37,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0B0F19] text-white p-6 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-6 relative overflow-hidden">
       {/* Ambient background */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-900/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-cyan-900/10 rounded-full blur-[120px] pointer-events-none" />
@@ -45,13 +45,13 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="text-center space-y-2">
           <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-cyan-500/20">
-            <Activity className="w-6 h-6 text-white" />
+            <Activity className="w-6 h-6 text-foreground" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
-          <p className="text-zinc-400">Sign in to continue your healthy reading journey</p>
+          <p className="text-muted-foreground">Sign in to continue your healthy reading journey</p>
         </div>
 
-        <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-8 space-y-6 backdrop-blur-xl">
+        <div className="bg-black/5 border border-border rounded-2xl p-8 space-y-6 backdrop-blur-xl">
           <button
             onClick={handleGoogleLogin}
             disabled={loading}
@@ -74,7 +74,7 @@ export default function LoginPage() {
           </button>
 
           {statusMsg && (
-            <div className={`text-sm text-center ${statusMsg.includes('Failed') ? 'text-red-400' : 'text-zinc-400 animate-pulse'}`}>
+            <div className={`text-sm text-center ${statusMsg.includes('Failed') ? 'text-red-400' : 'text-muted-foreground animate-pulse'}`}>
               {statusMsg}
             </div>
           )}
@@ -87,27 +87,27 @@ export default function LoginPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-white/10" />
+              <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#0f1422] px-2 text-zinc-500">Or continue with email</span>
+              <span className="bg-background px-2 text-muted-foreground">Or continue with email</span>
             </div>
           </div>
 
           <form className="space-y-4 opacity-50 pointer-events-none"> {/* Disabled visual for now as Google is priority */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Email</label>
-              <input type="email" placeholder="name@example.com" className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 outline-none text-white placeholder:text-zinc-600" />
+              <label className="text-sm font-medium text-muted-foreground">Email</label>
+              <input type="email" placeholder="name@example.com" className="w-full h-11 px-4 rounded-xl bg-black/5 border border-border outline-none text-foreground placeholder:text-muted-foreground" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-300">Password</label>
-              <input type="password" placeholder="••••••••" className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 outline-none text-white placeholder:text-zinc-600" />
+              <label className="text-sm font-medium text-muted-foreground">Password</label>
+              <input type="password" placeholder="••••••••" className="w-full h-11 px-4 rounded-xl bg-black/5 border border-border outline-none text-foreground placeholder:text-muted-foreground" />
             </div>
-            <button className="w-full h-11 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold flex items-center justify-center gap-2">
+            <button className="w-full h-11 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-foreground font-semibold flex items-center justify-center gap-2">
               Sign In <ArrowRight className="w-4 h-4" />
             </button>
           </form>
-          <p className="text-xs text-center text-zinc-500 mt-4">Email login disabled for this demo. Use Google.</p>
+          <p className="text-xs text-center text-muted-foreground mt-4">Email login disabled for this demo. Use Google.</p>
         </div>
       </div>
     </div>

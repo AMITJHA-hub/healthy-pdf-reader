@@ -322,7 +322,7 @@ export default function WebcamMonitor({
     }, [isReady, onDistanceChange, onBrightnessChange, onFacePositionChange, onStressSignals, onBlinkRateChange, onDetectedEmotion]);
 
     return (
-        <div className="relative rounded-lg overflow-hidden shadow-lg border border-white/10 bg-black group">
+        <div className="relative rounded-lg overflow-hidden shadow-lg border border-border bg-black group">
             <Webcam
                 ref={webcamRef}
                 audio={false}
@@ -335,7 +335,7 @@ export default function WebcamMonitor({
             <div className={`absolute top-2 right-2 w-3 h-3 rounded-full ${isReady ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-yellow-500'}`} />
 
             {!isReady && (
-                <div className="absolute inset-0 bg-black/80 flex items-center justify-center text-xs text-white p-4 text-center">
+                <div className="absolute inset-0 bg-black/80 flex items-center justify-center text-xs text-foreground p-4 text-center">
                     Starting AI...
                 </div>
             )}

@@ -201,11 +201,11 @@ function ReaderContent() {
 
     if (fileError) {
         return (
-            <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#090e1a] text-white space-y-6">
+            <div className="h-screen w-screen flex flex-col items-center justify-center bg-background text-foreground space-y-6">
                 <div className="text-red-400 font-medium text-lg">{fileError}</div>
                 <button 
                     onClick={() => router.push('/dashboard')}
-                    className="px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg transition-all"
+                    className="px-6 py-2 bg-black/5 hover:bg-black/5 border border-border text-foreground rounded-lg transition-all"
                 >
                     Return to Dashboard
                 </button>
@@ -214,11 +214,11 @@ function ReaderContent() {
     }
 
     if (!blobUrl) {
-        return <div className="h-screen flex items-center justify-center bg-[#090e1a] text-muted-foreground">Loading file...</div>;
+        return <div className="h-screen flex items-center justify-center bg-background text-muted-foreground">Loading file...</div>;
     }
 
     return (
-        <div className="h-screen w-screen flex relative bg-[#090e1a] overflow-hidden">
+        <div className="h-screen w-screen flex relative bg-background overflow-hidden">
 
             {/* Health Alert Overlay */}
             <HealthAlert type={alertType} onDismiss={() => setAlertType(null)} />
@@ -233,7 +233,7 @@ function ReaderContent() {
                 <div className="pointer-events-auto">
                     <button
                         onClick={() => router.push('/dashboard')}
-                        className="group flex items-center gap-2 px-4 py-2 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white/80 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all shadow-lg"
+                        className="group flex items-center gap-2 px-4 py-2 bg-secondary/40 backdrop-blur-md border border-border rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 hover:border-border transition-all shadow-lg"
                     >
                         <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                         <span className="font-medium text-sm">Dashboard</span>
@@ -242,7 +242,7 @@ function ReaderContent() {
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="mt-2 ml-1 text-xs text-white/50 px-2 truncate max-w-[200px]"
+                            className="mt-2 ml-1 text-xs text-muted-foreground px-2 truncate max-w-[200px]"
                         >
                             {decodeURIComponent(filename)}
                         </motion.div>
@@ -284,17 +284,17 @@ function ReaderContent() {
                     x: isSidebarOpen ? 0 : 20
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="h-full bg-[#0B0F19]/95 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-50 flex flex-col relative overflow-hidden"
+                className="h-full bg-background backdrop-blur-2xl border-l border-border shadow-2xl z-50 flex flex-col relative overflow-hidden"
             >
                 {/* Sidebar Header */}
-                <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                <div className="p-5 border-b border-border flex justify-between items-center bg-black/5">
                     <div className="flex items-center gap-2">
                         <ShieldCheck className="w-5 h-5 text-primary" />
-                        <span className="font-bold text-sm tracking-wide text-white/90">HEALTH MONITOR</span>
+                        <span className="font-bold text-sm tracking-wide text-muted-foreground">HEALTH MONITOR</span>
                     </div>
                     <button
                         onClick={() => setIsSidebarOpen(false)}
-                        className="p-2 hover:bg-white/10 rounded-lg text-muted-foreground hover:text-white transition-colors"
+                        className="p-2 hover:bg-black/5 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
                         title="Minimize Sidebar"
                     >
                         <ChevronRight className="w-5 h-5" />
@@ -305,16 +305,16 @@ function ReaderContent() {
                 <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
 
                     {/* Stress Widget */}
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:border-primary/20 transition-colors group">
+                    <div className="bg-black/5 rounded-2xl p-4 border border-border hover:border-primary/20 transition-colors group">
                         <div className="flex justify-between items-center mb-3">
-                            <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest flex items-center gap-2">
+                            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
                                 <Activity className="w-3 h-3 text-cyan-400" /> Stress
                             </h3>
                             <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${stressScore < 50 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                                 {Math.round(stressScore)}%
                             </span>
                         </div>
-                        <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden mb-2">
+                        <div className="w-full h-2 bg-secondary/40 rounded-full overflow-hidden mb-2">
                             <motion.div
                                 className={`h-full rounded-full ${stressScore < 50 ? 'bg-gradient-to-r from-green-400 to-emerald-500' : 'bg-gradient-to-r from-orange-500 to-red-500'}`}
                                 animate={{ width: `${stressScore}%` }}
@@ -323,34 +323,34 @@ function ReaderContent() {
                         </div>
                         {detectedEmotion && (
                             <div className="text-center mt-2">
-                                <span className="text-[10px] text-white/40 uppercase tracking-wide mr-2">Detected:</span>
-                                <span className="text-xs font-medium text-white/80">{detectedEmotion}</span>
+                                <span className="text-[10px] text-muted-foreground uppercase tracking-wide mr-2">Detected:</span>
+                                <span className="text-xs font-medium text-muted-foreground">{detectedEmotion}</span>
                             </div>
                         )}
                     </div>
 
                     {/* Blink Rate Widget */}
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:border-blue-500/20 transition-colors">
-                        <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <div className="bg-black/5 rounded-2xl p-4 border border-border hover:border-blue-500/20 transition-colors">
+                        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
                             <Eye className="w-3 h-3 text-blue-400" /> Blinks
                         </h3>
                         <div className="flex items-baseline justify-between">
-                            <span className="text-2xl font-bold text-white">{blinkRate}</span>
+                            <span className="text-2xl font-bold text-foreground">{blinkRate}</span>
                             <span className="text-xs text-muted-foreground">per min</span>
                         </div>
                     </div>
 
                     {/* Distance Widget */}
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:border-indigo-500/20 transition-colors">
-                        <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <div className="bg-black/5 rounded-2xl p-4 border border-border hover:border-indigo-500/20 transition-colors">
+                        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
                             <Ruler className="w-3 h-3 text-indigo-400" /> Distance
                         </h3>
                         <DistanceBar distance={distance} status={distanceStatus} />
                     </div>
 
                     {/* Posture Widget */}
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                        <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <div className="bg-black/5 rounded-2xl p-4 border border-border">
+                        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
                             <ShieldCheck className="w-3 h-3 text-teal-400" /> Posture
                         </h3>
                         <button
@@ -368,8 +368,8 @@ function ReaderContent() {
                 </div>
 
                 {/* Webcam Feed (Always visible at bottom of sidebar) */}
-                <div className="p-4 bg-black/40 border-t border-white/5">
-                    <div className="rounded-xl overflow-hidden border border-white/10 shadow-lg relative h-32 bg-black">
+                <div className="p-4 bg-secondary/40 border-t border-border">
+                    <div className="rounded-xl overflow-hidden border border-border shadow-lg relative h-32 bg-black">
                         <WebcamMonitor
                             onDistanceChange={setDistanceData}
                             onBrightnessChange={setBrightness}
@@ -391,7 +391,7 @@ function ReaderContent() {
 export default function ReadPage() {
     return (
         <HealthProvider>
-            <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-[#090e1a] text-cyan-500">Loading Reader...</div>}>
+            <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-background text-cyan-500">Loading Reader...</div>}>
                 <ReaderContent />
             </Suspense>
         </HealthProvider>
