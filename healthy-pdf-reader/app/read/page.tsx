@@ -45,26 +45,7 @@ function ReaderContent() {
     const [alertType, setAlertType] = useState<AlertType | null>(null);
     const [blinkRate, setBlinkRate] = useState(0);
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
-    const [isHeaderVisible, setIsHeaderVisible] = useState(true);
     const [fileError, setFileError] = useState<string | null>(null);
-
-    // Header auto-hide timeout
-    useEffect(() => {
-        let timeout: NodeJS.Timeout;
-        const resetTimer = () => {
-            setIsHeaderVisible(true);
-            clearTimeout(timeout);
-            timeout = setTimeout(() => setIsHeaderVisible(false), 3000);
-        };
-
-        window.addEventListener('mousemove', resetTimer);
-        resetTimer();
-
-        return () => {
-            window.removeEventListener('mousemove', resetTimer);
-            clearTimeout(timeout);
-        };
-    }, []);
 
     // --- Load Local File Effect ---
     useEffect(() => {
@@ -107,28 +88,93 @@ function ReaderContent() {
     const lastAlertTimeRef = useRef<number>(0);
     const timeSinceStartRef = useRef<number>(Date.now());
 
+    // --- Screen Time & Streak Tracking ---
+    const sessionStartTimeRef = useRef<number>(Date.now());
+    const hasIncrementedStreakRef = useRef(false);
+
     useEffect(() => {
         if (!user || !fileId) return;
-        const initSession = async () => {
-            updateDoc(doc(db, 'users', user.uid, 'files', fileId), {
-                lastOpenedAt: new Date().toISOString()
-            }).catch(console.error);
-        };
-        initSession();
+        
+        sessionStartTimeRef.current = Date.now();
+        hasIncrementedStreakRef.current = false;
 
-        const interval = setInterval(() => {
-            if (document.visibilityState === 'visible') {
-                updateDoc(doc(db, 'users', user.uid, 'stats', 'summary'), {
-                    totalScreenTime: increment(10),
+        const syncSessionStats = async () => {
+            const now = Date.now();
+            const elapsedSeconds = Math.floor((now - sessionStartTimeRef.current) / 1000);
+            if (elapsedSeconds < 1) return; 
+
+            sessionStartTimeRef.current = now; 
+
+            try {
+                const statsRef = doc(db, 'users', user.uid, 'stats', 'summary');
+                const fileRef = doc(db, 'users', user.uid, 'files', fileId);
+                
+                const statsSnap = await getDoc(statsRef);
+                let streakIncrement = 0;
+                let resetStreak = false;
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (statsSnap.exists()) {
+                    const data = statsSnap.data();
+                    if (data.lastActive) {
+                        const lastActiveDate = new Date(data.lastActive);
+                        lastActiveDate.setHours(0, 0, 0, 0);
+                        const diffDays = Math.round((today.getTime() - lastActiveDate.getTime()) / (1000 * 60 * 60 * 24));
+                        
+                        if (!hasIncrementedStreakRef.current) {
+                            if (diffDays === 1) streakIncrement = 1;
+                            else if (diffDays > 1) resetStreak = true;
+                            hasIncrementedStreakRef.current = true;
+                        }
+                    } else if (!hasIncrementedStreakRef.current) {
+                        streakIncrement = 1;
+                        hasIncrementedStreakRef.current = true;
+                    }
+                } else if (!hasIncrementedStreakRef.current) {
+                    streakIncrement = 1;
+                    hasIncrementedStreakRef.current = true;
+                }
+
+                const updates: any = {
+                    totalScreenTime: increment(elapsedSeconds),
                     lastActive: new Date().toISOString()
-                }).catch(e => { });
-            }
-        }, 10000);
+                };
 
-        return () => clearInterval(interval);
+                if (resetStreak) updates.streak = 1;
+                else if (streakIncrement > 0) updates.streak = increment(streakIncrement);
+
+                await updateDoc(statsRef, updates);
+                await updateDoc(fileRef, { lastOpenedAt: new Date().toISOString() });
+            } catch(e) { console.error("Stats sync failed:", e); }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                syncSessionStats();
+            } else if (document.visibilityState === 'visible') {
+                sessionStartTimeRef.current = Date.now();
+            }
+        };
+
+        const handleBeforeUnload = () => syncSessionStats();
+
+        window.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        
+        // Initial Mount Update 
+        updateDoc(doc(db, 'users', user.uid, 'files', fileId), { lastOpenedAt: new Date().toISOString() }).catch(console.error);
+
+        return () => {
+            window.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            syncSessionStats(); // Final sync on unmount
+        };
     }, [user, fileId]);
 
-    // Page Tracking
+    // --- Page Tracking ---
+    const [isTrackingReady, setIsTrackingReady] = useState(false);
     const currentPageRef = useRef<number>(1);
     const viewedPagesRef = useRef<Set<number>>(new Set());
 
@@ -136,8 +182,7 @@ function ReaderContent() {
         if (!user || !fileId) return;
         const fetchViewedPages = async () => {
             try {
-                const docRef = doc(db, 'users', user.uid, 'files', fileId);
-                const snapshot = await getDoc(docRef);
+                const snapshot = await getDoc(doc(db, 'users', user.uid, 'files', fileId));
                 if (snapshot.exists()) {
                     const data = snapshot.data();
                     if (data.viewedPages && Array.isArray(data.viewedPages)) {
@@ -145,39 +190,36 @@ function ReaderContent() {
                     }
                 }
             } catch (error) {
-                console.error("Error fetching viewed pages", error);
+                console.error("Error fetching viewed pages:", error);
+            } finally {
+                setIsTrackingReady(true); // Allow page tracking ONLY after load
             }
         };
         fetchViewedPages();
     }, [user, fileId]);
 
     const handlePageChange = (page: number) => {
-        if (!user || !fileId) return;
+        if (!user || !fileId || !isTrackingReady) return;
         currentPageRef.current = page;
 
         if (!viewedPagesRef.current.has(page)) {
             viewedPagesRef.current.add(page);
-            setTimeout(() => {
-                if (currentPageRef.current === page) {
-                    confirmPageView(page);
-                }
-            }, 300);
+            
+            updateDoc(doc(db, 'users', user.uid, 'files', fileId), {
+                viewedPages: arrayUnion(page),
+                pagesRead: increment(1),
+                currentPage: page
+            }).catch(console.error);
+
+            updateDoc(doc(db, 'users', user.uid, 'stats', 'summary'), {
+                totalPagesRead: increment(1)
+            }).catch(console.error);
+        } else {
+            // Unviewed, but update resume pointer
+            updateDoc(doc(db, 'users', user.uid, 'files', fileId), {
+                currentPage: page
+            }).catch(console.error);
         }
-
-        updateDoc(doc(db, 'users', user.uid, 'files', fileId), {
-            currentPage: page
-        }).catch(console.error);
-    };
-
-    const confirmPageView = (page: number) => {
-        if (!user || !fileId) return;
-        updateDoc(doc(db, 'users', user.uid, 'files', fileId), {
-            viewedPages: arrayUnion(page),
-            pagesRead: increment(1)
-        }).catch(console.error);
-        updateDoc(doc(db, 'users', user.uid, 'stats', 'summary'), {
-            totalPagesRead: increment(1)
-        }).catch(console.error);
     };
 
     const handleTotalPages = (total: number) => {
@@ -222,33 +264,6 @@ function ReaderContent() {
 
             {/* Health Alert Overlay */}
             <HealthAlert type={alertType} onDismiss={() => setAlertType(null)} />
-
-            {/* Top Navigation Bar (Auto-hiding) */}
-            <motion.header
-                initial={{ y: -100 }}
-                animate={{ y: isHeaderVisible ? 0 : -100 }}
-                transition={{ duration: 0.3 }}
-                className="absolute top-0 left-0 right-0 z-[60] p-4 flex justify-between items-start pointer-events-none"
-            >
-                <div className="pointer-events-auto">
-                    <button
-                        onClick={() => router.push('/dashboard')}
-                        className="group flex items-center gap-2 px-4 py-2 bg-secondary/40 backdrop-blur-md border border-border rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 hover:border-border transition-all shadow-lg"
-                    >
-                        <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        <span className="font-medium text-sm">Dashboard</span>
-                    </button>
-                    {filename && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="mt-2 ml-1 text-xs text-muted-foreground px-2 truncate max-w-[200px]"
-                        >
-                            {decodeURIComponent(filename)}
-                        </motion.div>
-                    )}
-                </div>
-            </motion.header>
 
             {/* Main PDF Area */}
             <div className={`flex-1 h-full relative transition-all duration-500 ease-in-out ${isSidebarOpen ? 'mr-0' : ''}`}>

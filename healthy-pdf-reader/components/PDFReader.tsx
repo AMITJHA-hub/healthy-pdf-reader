@@ -2,7 +2,8 @@
 
 import { Document, Page, pdfjs } from 'react-pdf';
 import { useState, useEffect, CSSProperties } from 'react';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHealth } from '../context/HealthContext';
 
@@ -16,6 +17,7 @@ interface PDFReaderProps {
 }
 
 export default function PDFReader({ url, onPageChange, onTotalPages }: PDFReaderProps) {
+  const router = useRouter();
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.0);
@@ -67,6 +69,14 @@ export default function PDFReader({ url, onPageChange, onTotalPages }: PDFReader
       {/* Controls - Disabled during break */}
       <div className={`sticky top-0 z-10 w-full bg-background/80 backdrop-blur-md border-b border-border p-4 flex justify-between items-center shadow-sm transition-opacity duration-300 ${isInBreak ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="group flex items-center gap-2 px-3 py-1.5 bg-secondary/40 border border-border rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 hover:border-border transition-all mr-2"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-medium text-xs hidden sm:inline">Back</span>
+          </button>
+          
           <button
             onClick={() => setPageNumber(p => Math.max(1, p - 1))}
             disabled={pageNumber <= 1}

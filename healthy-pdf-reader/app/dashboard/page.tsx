@@ -6,7 +6,7 @@ import { Upload, BookOpen, Clock, Activity, Zap, ChevronRight, Play, Star, FileT
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { collection, onSnapshot, addDoc, query, orderBy, where, deleteDoc, doc, updateDoc, setDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { saveLocalFile, deleteLocalFile } from '@/lib/db';
 
@@ -199,8 +199,15 @@ export default function Dashboard() {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploadingProfile, setIsUploadingProfile] = useState(false);
     const profileInputRef = useRef<HTMLInputElement>(null);
+    const [localPhoto, setLocalPhoto] = useState<string | null>(null);
 
     // --- Effects ---
+    useEffect(() => {
+        if (userProfile?.photoDataUrl || user?.photoURL) {
+            setLocalPhoto(userProfile?.photoDataUrl || user?.photoURL);
+        }
+    }, [userProfile, user]);
+
     useEffect(() => {
         const hour = new Date().getHours();
         setGreeting(hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening');
@@ -305,8 +312,28 @@ export default function Dashboard() {
         const file = e.target.files?.[0];
         if (!file || !user) return;
 
+        const previewUrl = URL.createObjectURL(file);
+        setLocalPhoto(previewUrl);
         setIsUploadingProfile(true);
+
         try {
+            if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY === 'mock_key_for_build' || !process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+                setTimeout(() => setIsUploadingProfile(false), 800);
+                return;
+            }
+
+            const oldUrl = userProfile?.photoDataUrl;
+            if (oldUrl && oldUrl.includes('firebasestorage.googleapis.com')) {
+                const pathMatch = oldUrl.match(/o\/(.*?)\?alt/);
+                if (pathMatch && pathMatch[1]) {
+                    const decodedPath = decodeURIComponent(pathMatch[1]);
+                    if (decodedPath.startsWith('users/')) {
+                        const oldRef = ref(storage, decodedPath);
+                        await deleteObject(oldRef).catch(e => console.warn("Failed to delete old image", e));
+                    }
+                }
+            }
+
             const storageRef = ref(storage, `users/${user.uid}/profile_${Date.now()}`);
             await uploadBytes(storageRef, file);
             const url = await getDownloadURL(storageRef);
@@ -315,12 +342,11 @@ export default function Dashboard() {
                 photoDataUrl: url,
             }, { merge: true });
             
-            // Allow a moment for the context to refresh
-            setTimeout(() => window.location.reload(), 1000);
+            setIsUploadingProfile(false);
         } catch (error) {
             console.error("Error uploading profile picture:", error);
-            alert("Failed to update profile picture");
-        } finally {
+            alert("Failed to update profile picture remotely.");
+            setLocalPhoto(userProfile?.photoDataUrl || user?.photoURL);
             setIsUploadingProfile(false);
         }
     };
@@ -336,7 +362,7 @@ export default function Dashboard() {
     );
 
     const displayName = userProfile?.name || user.displayName || 'Reader';
-    const photoUrl = userProfile?.photoDataUrl || user.photoURL;
+    const photoUrl = localPhoto;
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 overflow-x-hidden relative">
